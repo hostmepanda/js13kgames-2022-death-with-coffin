@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/hostmepanda/js13kgames-2022-death-with-coffin/issues"
   },
-  "homepage": "https://github.com/hostmepanda/js13kgames-2022-death-with-coffin#readme"
+  "homepage": "https://github.com/hostmepanda/js13kgames-2022-death-with-coffin#readme",
+  "dependencies": {
+    "kontra": "^8.0.0"
+  }
 }
