@@ -1,0 +1,19 @@
+{
+  "name": "js13kgames-2022-death-with-coffin",
+  "version": "1.0.0",
+  "description": "Death game for js13kgames contest in 2022",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hostmepanda/js13kgames-2022-death-with-coffin.git"
+  },
+  "author": "hostmepanda",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hostmepanda/js13kgames-2022-death-with-coffin/issues"
+  },
+  "homepage": "https://github.com/hostmepanda/js13kgames-2022-death-with-coffin#readme"
+}
