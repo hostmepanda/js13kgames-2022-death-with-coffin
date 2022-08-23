@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "Death game for js13kgames contest in 2022",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "build": "./node_modules/.bin/minify ./index.js > ./dist/index.min.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "repository": {
     "type": "git",
@@ -18,7 +21,9 @@
   },
   "homepage": "https://github.com/hostmepanda/js13kgames-2022-death-with-coffin#readme",
   "dependencies": {
-    "kontra": "^8.0.0",
-    "minify": "^9.1.0"
+    "kontra": "^8.0.0"
+  },
+  "devDependencies": {
+    "vite": "^3.0.7"
   }
 }

@@ -1,4 +1,5 @@
-import { init, Sprite, GameLoop } from 'kontra'
+import './style.css';
+import { init, Sprite, GameLoop } from 'kontra';
 
 let { canvas } = init();
 
