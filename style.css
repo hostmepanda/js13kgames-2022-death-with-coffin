@@ -1,0 +1,21 @@
+body {
+    background-color: #000;
+    height: 800px;
+}
+
+.main-canvas-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.main-canvas-wrapper h5 {
+    color: #b7b7b7;
+    font-size: 20pt;
+    text-align: center;
+}
+
+#game-canvas {
+    border: 2px solid #580000;
+}
