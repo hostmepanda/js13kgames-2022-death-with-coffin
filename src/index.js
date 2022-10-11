@@ -1,8 +1,6 @@
-import '../style.css';
 import {
   init,
   initPointer,
-  Sprite,
   GameLoop,
   track,
   Text,
@@ -11,76 +9,22 @@ import {
   initKeys,
 } from 'kontra';
 
-let { canvas } = init();
+import '../style.css';
+
+import { ammoType } from './ammo-stripe/ammo-type.js';
+import { ammoStripe } from './ammo-stripe/ammo-stripe.js';
+import { detachedBullets } from './ammo-stripe/helpers.js';
+import { fireFirstAmmo } from './ammo-stripe/helpers.js';
+import { livingSubjects } from './living-objects/living-object-type.js';
+import { transports } from './transports/transport-type.js';
+import { graveScenery } from './decoration-components';
+
+let { canvas, context } = init();
 
 initPointer();
 initKeys();
 
-const ammoType = [
-  '💣',
-  '🔪',
-  '🧨',
-  '💥',
-  '👻',
-  '😈',
-  '🪓',
-  '⚰️',
-];
-
-let ammoStripe = [];
-let detachedBullets = [];
-
-const graveGround = Sprite({
-  color: '#4d2212',
-  width: 600,
-  height: 8,
-  x: 0,
-  y: 410,
-});
-const graveGroundCover = Sprite({
-  color: 'rgba(101,39,0,0.51)',
-  width: 600,
-  height: 15,
-  x: 0,
-  y: 415,
-});
-
-const graveGroundBackCover = Sprite({
-  color: 'rgba(133,133,133,0.35)',
-  width: 600,
-  height: 15,
-  x: 0,
-  y: 395,
-});
-
-const graveGroundBackCoverTrees = Sprite({
-  color: 'rgba(36,77,0,0.68)',
-  width: 600,
-  height: 7,
-  x: 0,
-  y: 387,
-});
-
-const cyclist = Text({
-  text: '🚴‍️',
-  font: '40px Arial, sans-serif',
-  color: 'white',
-  anchor: { x: 0.5, y: 0.5 },
-  x: canvas.width + 10,
-  y: canvas.height / 4,
-  ttl: 1,
-  shouldBlow: false,
-});
-
-const ghost = Text({
-  text: '👻',
-  font: '40px Arial, sans-serif',
-  color: 'white',
-  anchor: { x: 0.5, y: 0.5 },
-  x: -10,
-  y: canvas.height / 4,
-  ttl: 1,
-});
+let movingObjects = [];
 
 const redTriangle = Text({
   text: '🔺',
@@ -113,7 +57,8 @@ const redTriangle = Text({
     }
     if (keyPressed('arrowup') && !this.isRecharging) {
       this.isKeyProcessing = true;
-      fireFirstAmmo();
+      const { x, y } = redTriangle;
+      fireFirstAmmo({ x, y });
       this.isRecharging = true;
 
       loadRandomAmmo(ammoStripe, { x: this.x, y: ammoPositionThree, freeze: true });
@@ -167,6 +112,7 @@ function loadRandomAmmo(ammoStripe, { x = initialGamePositionX, y = ammoPosition
             this.ttl = 0;
           }
           this.y = this.y - this.dy;
+          this.rotation = this.rotation - this.dy / 20;
         }
         if (!this.isInStripe || this.isKeyProcessing) {
           return;
@@ -189,17 +135,31 @@ function loadRandomAmmo(ammoStripe, { x = initialGamePositionX, y = ammoPosition
   );
 }
 
-function fireFirstAmmo() {
-  const [firstBullet] = ammoStripe.splice(0, 1);
-  const { x, y } = redTriangle;
-  firstBullet.detach({ x, y, dy: 1 });
-  detachedBullets.push(firstBullet);
-  ammoStripe.map(
-    (bullet, index) => {
-      bullet.y = 450 + ((index + 1) * 40);
+function createRandomLivingSubject() {
+  const randomIndex = parseInt(Math.random() * 100, 10) % livingSubjects.length;
+  console.log(Math.random(1, 100) * 10);
+  const livingObject = Text({
+    text: livingSubjects[randomIndex],
+    font: '40px Arial, sans-serif',
+    color: 'white',
+    anchor: { x: 0.5, y: 0.5 },
+    x: canvas.width + 10 + parseInt(Math.random(40, 80) * 80, 10) ,
+    y: canvas.height / 4,
+    ttl: 1,
+    shouldBlow: false,
+    update() {
+      this.x = this.x - 0.5;
     },
-  );
+  });
+  return livingObject;
 }
+
+movingObjects = [
+  createRandomLivingSubject(),
+  createRandomLivingSubject(),
+];
+
+
 
 // let button = Button({
 //   // sprite properties
@@ -228,25 +188,9 @@ function fireFirstAmmo() {
 //   }
 // });
 
-const graveStep = canvas.width / 5;
-
-const graveStones = [1, 2, 3, 4, 5].map(
-  index => {
-    return Text({
-      text: '🪦',
-      font: '40px Arial, sans-serif',
-      color: 'white',
-      anchor: { x: 0.5, y: 0.5 },
-      x: index * graveStep - 60,
-      y: canvas.height - 200,
-      ttl: 1,
-    });
-  },
-);
 
 let sceneSprites = [
-  cyclist,
-  ghost,
+  ...movingObjects,
 ];
 
 function blowWithParts(x, y) {
@@ -303,31 +247,41 @@ let loop = GameLoop({  // create the main game loop
     redTriangle.update();
     ammoStripe.map(ammo => ammo.update());
     detachedBullets.map(bullet => bullet.update());
+    sceneSprites.forEach(sprite => sprite.update());
+    // if(cyclist.isAlive() && cyclist.x > -50) {
+    //   cyclist.x = cyclist.x - 0.5;
+    // }
 
-    if(cyclist.isAlive() && cyclist.x > 300) {
-      cyclist.x = cyclist.x - 0.5;
-    }
-
-    if (cyclist.x - (ghost.x + ghost.width) <= -10) {
-      cyclist.ttl = 0;
-      ghost.ttl = 0;
-      sceneSprites = [];
-      blowWithParts(cyclist.x, cyclist.y);
-    }
-    detachedBullets = detachedBullets.filter(
-      bullet => bullet.isAlive(),
+    detachedBullets.forEach(
+      bullet => {
+        movingObjects.find();
+        const bulletXBetweenCyclistX = bullet.x >= cyclist.x && bullet.x <= cyclist.x + cyclist.width
+        const bulletYBetweenCyclistY = bullet.y >= cyclist.y && bullet.y <= cyclist.y + cyclist.height;
+        if (bulletXBetweenCyclistX && bulletYBetweenCyclistY) {
+          cyclist.ttl = 0;
+          bullet.ttl = 0;
+          sceneSprites = [];
+          blowWithParts(cyclist.x, cyclist.y);
+        }
+      },
     )
+
+    const stillAliveDetachedBullets = detachedBullets.filter(
+      bullet => bullet.isAlive(),
+    );
+    detachedBullets.splice(0, detachedBullets.length);
+    detachedBullets.push(...stillAliveDetachedBullets);
   },
-  render: function() { // render the game state
-    graveGround.render();
-    graveGroundCover.render();
-    graveGroundBackCover.render();
-    graveGroundBackCoverTrees.render();
+  render: function() {
     redTriangle.render();
     ammoStripe.map(ammo => ammo.render());
-    graveStones.map(graveStone => graveStone.render());
     sceneSprites.forEach(sprite => sprite.render());
     detachedBullets.forEach(bullet => bullet.render());
+
+    graveScenery.forEach(sceneryElement => {
+      sceneryElement.context = context;
+      return sceneryElement.render();
+    });
   }
 });
 
